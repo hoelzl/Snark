@@ -413,9 +413,9 @@
 ;;              (format t "   ") (dotimes (j nycoefs) (format t "~4d" (svref ysol j)))
 		(cond
 		  ((and
-		     (loop for i from (+ 1 (loop for k below nxcoefs when (plusp (svref xsol k)) return k)) below nxcoefs
+		     (loop for i from (+ 1 (loop for k below nxcoefs when (plusp (svref xsol k)) return k finally (error "Loop should have terminated"))) below nxcoefs
 			   never (plusp (svref xsol i)))	;returns t if xsol has only one nonzero value
-		     (loop for j from (+ 1 (loop for k below nycoefs when (plusp (svref ysol k)) return k)) below nycoefs
+		     (loop for j from (+ 1 (loop for k below nycoefs when (plusp (svref ysol k)) return k finally (error "Loop should have terminated"))) below nycoefs
 			   never (plusp (svref ysol j))))	;returns t if ysol has only one nonzero value
 		   )
 		  ((loop for v in complex-solutions	;returns t if new solution is greater than previous one

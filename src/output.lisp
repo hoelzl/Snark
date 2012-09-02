@@ -109,6 +109,8 @@
       (print-term term subst stream)))
   term)
 
+(defgeneric print-given-row (row))
+
 (defmethod print-given-row (row)
   (case (print-rows-when-given?)
     ((nil)
@@ -135,6 +137,8 @@
        (princ " ")
        (force-output))))
   row)
+
+(defgeneric print-derived-row (row))
 
 (defmethod print-derived-row (row)
   (case (print-rows-when-derived?)

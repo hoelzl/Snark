@@ -560,7 +560,8 @@
      ,@forms))
 
 (defun quit ()
-  #+(or ccl cmu sbcl clisp lispworks) (common-lisp-user::quit)
+  #+sbcl (sb-ext:exit)
+  #+(or ccl cmu clisp lispworks) (common-lisp-user::quit)
   #+allegro (excl::exit))
 
 ;;; lisp.lisp EOF
