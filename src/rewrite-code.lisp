@@ -26,80 +26,80 @@
   ;; (= t s) -> false if t and s have disjoint sorts
   ;; also try equality-rewrite-code functions for (= (f ...) (f ...))
   ;; none otherwise
-  (mvlet ((*=* (head atom))
-          ((list x y) (args atom)))
-    (or (dereference2
-         x y subst
-         :if-variable*variable (cond
-                                ((eq x y)
-                                 true))
-         :if-constant*constant (cond
-                                ((eql x y)
-                                 true))
-         :if-compound*compound (cond
-                                ((equal-p x y subst)
-                                 true)
-                                (t
-                                 (let ((fn1 (head x)) (fn2 (head y)))
-                                   (cond
-                                    ((eq fn1 fn2)
-                                     (cond
-                                      ((dolist (fun (function-equality-rewrite-code fn1) nil)
-                                         (let ((v (funcall fun atom subst)))
-                                           (unless (eq none v)
-                                             (return v)))))
-                                      ((function-associative fn1)
-                                       nil)
-                                      ((and (function-constructor fn1) (function-commutative fn1))
-                                       (let ((xargs (args x))
-                                             (yargs (args y)))
-                                         (if (length= xargs yargs)
-                                             (conjoin (let ((x1 (first xargs)) (x2 (second xargs))
-                                                            (y1 (first yargs)) (y2 (second yargs)))
-                                                        (disjoin (conjoin (make-equality x1 y1) (make-equality x2 y2) subst)
-                                                                 (conjoin (make-equality x1 y2) (make-equality x2 y1) subst)
-                                                                 subst))
-                                                      (conjoin* (mapcar #'make-equality (rrest xargs) (rrest yargs)) subst)
-                                                      subst)
-                                             false)))
-                                      ((function-injective fn1)
-                                       (let ((xargs (args x))
-                                             (yargs (args y)))
-                                         (if (length= xargs yargs)
-                                             (conjoin* (mapcar #'make-equality xargs yargs) subst)	;may result in nonclause
-                                             false))))))))))
-        (let ((xconstant nil) (xcompound nil) (xconstructor nil) xsort
-              (yconstant nil) (ycompound nil) (yconstructor nil) ysort)
-          (dereference
-           x nil
-           :if-constant (setf xconstant t xconstructor (constant-constructor x))
-           :if-compound (setf xcompound t xconstructor (function-constructor (head x))))
-          (dereference
-           y nil
-           :if-constant (setf yconstant t yconstructor (constant-constructor y))
-           :if-compound (setf ycompound t yconstructor (function-constructor (head y))))
-          (cond
-           ((or (and xconstructor yconstructor (implies (and xcompound ycompound) (neq (head x) (head y))))
-                (sort-disjoint?
-                 (setf xsort (if xcompound (compound-sort x subst) (if xconstant (constant-sort x) (variable-sort x))))
-                 (setf ysort (if ycompound (compound-sort y subst) (if yconstant (constant-sort y) (variable-sort y)))))
-                (and (not (same-sort? xsort ysort))
-                     (or (and xconstructor (not (subsort? xsort ysort)) (not (same-sort? xsort (sort-intersection xsort ysort))))
-                         (and yconstructor (not (subsort? ysort xsort)) (not (same-sort? ysort (sort-intersection xsort ysort))))))
-                (and xconstructor
-                     xcompound
-                     (cond
-                      (yconstant (constant-occurs-below-constructor-p y x subst))
-                      (ycompound (compound-occurs-below-constructor-p y x subst))
-                      (t         (variable-occurs-below-constructor-p y x subst))))
-                (and yconstructor
-                     ycompound
-                     (cond
-                      (xconstant (constant-occurs-below-constructor-p x y subst))
-                      (xcompound (compound-occurs-below-constructor-p x y subst))
+  (let ((*=* (head atom)))
+    (mvlet (((list x y) (args atom)))
+      (or (dereference2
+	   x y subst
+	   :if-variable*variable (cond
+				   ((eq x y)
+				    true))
+	   :if-constant*constant (cond
+				   ((eql x y)
+				    true))
+	   :if-compound*compound (cond
+				   ((equal-p x y subst)
+				    true)
+				   (t
+				    (let ((fn1 (head x)) (fn2 (head y)))
+				      (cond
+					((eq fn1 fn2)
+					 (cond
+					   ((dolist (fun (function-equality-rewrite-code fn1) nil)
+					      (let ((v (funcall fun atom subst)))
+						(unless (eq none v)
+						  (return v)))))
+					   ((function-associative fn1)
+					    nil)
+					   ((and (function-constructor fn1) (function-commutative fn1))
+					    (let ((xargs (args x))
+						  (yargs (args y)))
+					      (if (length= xargs yargs)
+						  (conjoin (let ((x1 (first xargs)) (x2 (second xargs))
+								 (y1 (first yargs)) (y2 (second yargs)))
+							     (disjoin (conjoin (make-equality x1 y1) (make-equality x2 y2) subst)
+								      (conjoin (make-equality x1 y2) (make-equality x2 y1) subst)
+								      subst))
+							   (conjoin* (mapcar #'make-equality (rrest xargs) (rrest yargs)) subst)
+							   subst)
+						  false)))
+					   ((function-injective fn1)
+					    (let ((xargs (args x))
+						  (yargs (args y)))
+					      (if (length= xargs yargs)
+						  (conjoin* (mapcar #'make-equality xargs yargs) subst)	;may result in nonclause
+						  false))))))))))
+	  (let ((xconstant nil) (xcompound nil) (xconstructor nil) xsort
+		(yconstant nil) (ycompound nil) (yconstructor nil) ysort)
+	    (dereference
+	     x nil
+	     :if-constant (setf xconstant t xconstructor (constant-constructor x))
+	     :if-compound (setf xcompound t xconstructor (function-constructor (head x))))
+	    (dereference
+	     y nil
+	     :if-constant (setf yconstant t yconstructor (constant-constructor y))
+	     :if-compound (setf ycompound t yconstructor (function-constructor (head y))))
+	    (cond
+	      ((or (and xconstructor yconstructor (implies (and xcompound ycompound) (neq (head x) (head y))))
+		   (sort-disjoint?
+		    (setf xsort (if xcompound (compound-sort x subst) (if xconstant (constant-sort x) (variable-sort x))))
+		    (setf ysort (if ycompound (compound-sort y subst) (if yconstant (constant-sort y) (variable-sort y)))))
+		   (and (not (same-sort? xsort ysort))
+			(or (and xconstructor (not (subsort? xsort ysort)) (not (same-sort? xsort (sort-intersection xsort ysort))))
+			    (and yconstructor (not (subsort? ysort xsort)) (not (same-sort? ysort (sort-intersection xsort ysort))))))
+		   (and xconstructor
+			xcompound
+			(cond
+			  (yconstant (constant-occurs-below-constructor-p y x subst))
+			  (ycompound (compound-occurs-below-constructor-p y x subst))
+			  (t         (variable-occurs-below-constructor-p y x subst))))
+		   (and yconstructor
+			ycompound
+			(cond
+			  (xconstant (constant-occurs-below-constructor-p x y subst))
+			  (xcompound (compound-occurs-below-constructor-p x y subst))
                       (t         (variable-occurs-below-constructor-p x y subst)))))
-            false)))
-        none)))
+	       false)))
+	  none))))
 
 (defun make-characteristic-atom-rewriter (pred sort)
   (setf sort (the-sort sort))
