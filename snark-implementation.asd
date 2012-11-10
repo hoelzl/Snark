@@ -16,6 +16,7 @@
 	       #:snark-feature
 	       #:snark-infix-reader
 	       #:snark-pkg)
+  :pathname "src/"
   :components ((:file "useful")
 	       (:file "posets")
 	       (:file "solve-sum")

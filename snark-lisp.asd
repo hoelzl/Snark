@@ -5,6 +5,7 @@
   :author "Mark E. Stickel, SRI International"
   :license "MPL 1.1, see file LICENSE"
   :depends-on (#:snark-auxiliary-packages)
+  :pathname "src/"
   :components ((:file "mvlet")
 	       (:file "progc")
 	       (:file "lisp")
