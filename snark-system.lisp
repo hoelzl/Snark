@@ -21,7 +21,8 @@
 
 ;;; load files from the same directory that this file was loaded from
 
-(defparameter *snark-system-pathname* *load-truename*)
+(defparameter *snark-system-pathname* 
+  (make-pathname :type "lisp" :defaults *load-truename*))
 
 (defparameter *snark-files2*
   '("loads"
