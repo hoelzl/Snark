@@ -62,10 +62,7 @@
      #+mcl
      (progn ,@forms)
      #-mcl
-     (with-open-file (*standard-output*
-                      (make-pathname :directory '(:absolute "dev") :name "null")
-                      :direction :output
-                      :if-exists :append)
+     (with-open-stream (*standard-output* (make-broadcast-stream))
        (let ((*error-output* *standard-output*))
          ,@forms))))
 
